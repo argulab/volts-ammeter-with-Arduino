@@ -46,6 +46,12 @@ float volts_to_amps(float v) {
   return (v - negative_volts) / volts_per_amp;
 }
 
+float volts_divider() {
+  float resistor_one = 2708.0;
+  float resistor_two = 1192.0;
+  return resistor_two / (resistor_one + resistor_two);
+}
+
 void display_volts(float v) {
   lcd.setCursor(2, 0);
   lcd.print("     ");
@@ -94,18 +100,12 @@ void init_message() {
   lcd.print("A=");
 }
 
-float read_volts() {
-  float resistor_one = 2708.0;
-  float resistor_two = 1192.0;
-  float volts_factor = resistor_two / (resistor_one + resistor_two);
-  float r_volts = read_analog_data(PIN_VOLTS);
-  float n_volts = raw_to_volts(r_volts);
-  return n_volts / volts_factor;
-}
-
 void service_volts() {
   float split_volts = 0.1;
-  float new_volts = read_volts();
+  float v_divider = volts_divider();
+  float r_volts = read_analog_data(PIN_VOLTS);
+  float n_volts = raw_to_volts(r_volts);
+  float new_volts = n_volts / v_divider;
 
   if((new_volts > (volts + split_volts)) || (new_volts < (volts - split_volts))) {
     display_volts(new_volts);
@@ -120,17 +120,12 @@ void service_volts() {
   }
 }
 
-float read_amps() {
-  float r_amps = read_analog_data(PIN_AMPS);
-  float v_amps = raw_to_volts(r_amps);
-  float n_amps = volts_to_amps(v_amps);
-  return n_amps;
-}
-
 void service_amps() {
   float split_amps = 0.1;
-  float new_amps = read_amps();
- 
+  float r_amps = read_analog_data(PIN_AMPS);
+  float v_amps = raw_to_volts(r_amps);
+  float new_amps = volts_to_amps(v_amps);
+
   if ((new_amps > (amps + split_amps)) || (new_amps < (amps - split_amps))) {
     display_amps(new_amps);
     display_gauge(new_amps);
