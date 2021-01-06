@@ -4,7 +4,7 @@
 #define PIN_VOLTS A0
 #define PIN_AMPS A1
 
-unsigned long check_init = millis();
+unsigned long check_init = -1;
 float volts = 0;
 float amps = -1;
 float max_amps = 0;
@@ -147,6 +147,7 @@ void service_amps() {
 void setup() {
   Serial.begin(9600);
   Serial.flush();
+  check_init = millis();
   lcd.createChar(0, char_gauge);
 
   lcd.init();
